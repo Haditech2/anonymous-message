@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Send Anonymous Message to @{{ user_profile.username }}{% endblock %}
+
+{% block og_title %}Send me an anonymous message - @{{ user_profile.username }}{% endblock %}
+{% block og_description %}Send @{{ user_profile.username }} an honest, anonymous message{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center min-vh-100 align-items-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-lg border-0 rounded-4 slide-up">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <div class="user-avatar mx-auto mb-3">
+                            <i class="fas fa-user-circle fa-4x text-primary"></i>
+                        </div>
+                        <h1 class="h3 fw-bold mb-2">@{{ user_profile.username }}</h1>
+                        <p class="text-muted">Send an anonymous message</p>
+                    </div>
+                    
+                    <form id="sendMessageForm">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Your Anonymous Message</label>
+                            {{ form.message_text }}
+                            <div class="form-text d-flex justify-content-between">
+                                <span>
+                                    <i class="fas fa-lock"></i> 
+                                    Completely anonymous
+                                </span>
+                                <span id="charCount">0/500</span>
+                            </div>
+                            <div id="errorMessage" class="text-danger small mt-2" style="display: none;"></div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill btn-animated" id="submitBtn">
+                            <span class="btn-text">
+                                <i class="fas fa-paper-plane me-2"></i>
+                                Send Message
+                            </span>
+                            <span class="btn-loading" style="display: none;">
+                                <i class="fas fa-spinner fa-spin me-2"></i>
+                                Sending...
+                            </span>
+                        </button>
+                    </form>
+                    
+                    <div class="success-message" id="successMessage" style="display: none;">
+                        <div class="text-center py-4">
+                            <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                            <h4 class="fw-bold">Message Sent! 🎉</h4>
+                            <p class="text-muted">Your anonymous message has been delivered</p>
+                            <button class="btn btn-outline-primary rounded-pill" onclick="resetForm()">
+                                Send Another
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <small class="text-muted">
+                            <i class="fas fa-shield-alt"></i> 
+                            Your identity is completely hidden
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <a href="{% url 'index' %}" class="text-decoration-none">
+                    <i class="fas fa-plus-circle me-1"></i>
+                    Create your own profile
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const messageTextarea = document.querySelector('textarea[name="message_text"]');
+const charCount = document.getElementById('charCount');
+const sendForm = document.getElementById('sendMessageForm');
+const submitBtn = document.getElementById('submitBtn');
+const errorMessage = document.getElementById('errorMessage');
+const successMessage = document.getElementById('successMessage');
+
+// Character counter
+messageTextarea.addEventListener('input', function() {
+    const count = this.value.length;
+    charCount.textContent = count + '/500';
+    
+    if (count > 500) {
+        charCount.classList.add('text-danger');
+    } else {
+        charCount.classList.remove('text-danger');
+    }
+});
+
+// Form submission
+sendForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnLoading = submitBtn.querySelector('.btn-loading');
+    
+    // Show loading
+    btnText.style.display = 'none';
+    btnLoading.style.display = 'inline';
+    submitBtn.disabled = true;
+    errorMessage.style.display = 'none';
+    
+    try {
+        const response = await fetch('{% url "send_message_ajax" user_profile.username %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Show success animation
+            sendForm.style.display = 'none';
+            successMessage.style.display = 'block';
+            successMessage.classList.add('fade-in');
+        } else {
+            // Show error
+            errorMessage.textContent = data.error || 'Something went wrong. Please try again.';
+            errorMessage.style.display = 'block';
+        }
+    } catch (error) {
+        errorMessage.textContent = 'Network error. Please check your connection.';
+        errorMessage.style.display = 'block';
+    } finally {
+        btnText.style.display = 'inline';
+        btnLoading.style.display = 'none';
+        submitBtn.disabled = false;
+    }
+});
+
+function resetForm() {
+    sendForm.reset();
+    sendForm.style.display = 'block';
+    successMessage.style.display = 'none';
+    charCount.textContent = '0/500';
+}
+</script>
+{% endblock %}
