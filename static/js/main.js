@@ -282,4 +282,4 @@ document.addEventListener('visibilitychange', function() {
 // INITIALIZE
 // ===========================
 
-console.log('AnonMsg Platform Loaded ✨');
+console.log('Hadi-anonmsg Platform Loaded ✨');
