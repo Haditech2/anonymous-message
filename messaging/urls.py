@@ -5,6 +5,7 @@ urlpatterns = [
     # Homepage
     path('', views.index, name='index'),
     path('profile-created/', views.profile_created, name='profile_created'),
+    path('login/', views.login, name='login'),
     
     # Public profile
     path('u/<str:username>/', views.public_profile, name='public_profile'),

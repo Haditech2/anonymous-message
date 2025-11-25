@@ -8,7 +8,7 @@ from django.utils import timezone
 from datetime import timedelta
 from django_ratelimit.decorators import ratelimit
 from .models import UserProfile, Message, BlockedIP
-from .forms import CreateProfileForm, SendMessageForm, PinAuthForm
+from .forms import CreateProfileForm, SendMessageForm, PinAuthForm, LoginForm
 from PIL import Image, ImageDraw, ImageFont
 import io
 import textwrap
@@ -245,6 +245,32 @@ def logout_dashboard(request, username):
     
     messages.success(request, 'You have been logged out.')
     return redirect('index')
+
+
+def login(request):
+    """Login page for existing users"""
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            pin = form.cleaned_data['pin']
+            
+            try:
+                user_profile = UserProfile.objects.get(username=username)
+                
+                if pin == user_profile.pin:
+                    # Set session
+                    request.session[f'auth_{username}'] = True
+                    messages.success(request, f'Welcome back, @{username}!')
+                    return redirect('dashboard', username=username)
+                else:
+                    messages.error(request, 'Incorrect PIN. Please try again.')
+            except UserProfile.DoesNotExist:
+                messages.error(request, 'Username not found. Please check and try again.')
+    else:
+        form = LoginForm()
+    
+    return render(request, 'messaging/login.html', {'form': form})
 
 
 def generate_message_image(request, username, message_id):

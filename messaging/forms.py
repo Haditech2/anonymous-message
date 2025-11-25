@@ -77,3 +77,39 @@ class PinAuthForm(forms.Form):
             raise ValidationError('PIN must be 4 digits.')
         
         return pin
+
+
+class LoginForm(forms.Form):
+    """Form for user login"""
+    username = forms.CharField(
+        max_length=50,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control form-control-lg',
+            'placeholder': 'Enter your username',
+            'autocomplete': 'username'
+        })
+    )
+    
+    pin = forms.CharField(
+        max_length=4,
+        min_length=4,
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control form-control-lg',
+            'placeholder': 'Enter your 4-digit PIN',
+            'maxlength': 4,
+            'autocomplete': 'current-password',
+            'inputmode': 'numeric'
+        })
+    )
+    
+    def clean_username(self):
+        username = self.cleaned_data['username'].lower().strip()
+        return username
+    
+    def clean_pin(self):
+        pin = self.cleaned_data['pin']
+        
+        if not pin.isdigit():
+            raise ValidationError('PIN must be 4 digits.')
+        
+        return pin
