@@ -63,22 +63,35 @@ WSGI_APPLICATION = 'anonymous_msg.wsgi.application'
 
 
 # Database
-# Default to SQLite for local development
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# Use PostgreSQL in production (Vercel), SQLite for local development
+import dj_database_url
 
-# Use PostgreSQL in production (Vercel)
 if os.environ.get('POSTGRES_URL'):
-    import dj_database_url
-    DATABASES['default'] = dj_database_url.config(
-        default=os.environ.get('POSTGRES_URL'),
-        conn_max_age=600,
-        conn_health_checks=True,
-    )
+    # Use environment variable if available (for Vercel deployments)
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.environ.get('POSTGRES_URL'),
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
+elif os.environ.get('VERCEL'):
+    # Fallback to hardcoded Neon DB for Vercel if POSTGRES_URL not set
+    DATABASES = {
+        'default': dj_database_url.config(
+            default='postgresql://neondb_owner:npg_gsxn42RleAyI@ep-flat-bird-adoqlxg8-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require',
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
+else:
+    # SQLite for local development
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
