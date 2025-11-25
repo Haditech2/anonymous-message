@@ -66,25 +66,25 @@ WSGI_APPLICATION = 'anonymous_msg.wsgi.application'
 import dj_database_url
 
 # Check if running locally (db.sqlite3 file exists in current directory)
-IS_LOCAL = os.path.exists(BASE_DIR / 'db.sqlite3') and not os.environ.get('VERCEL_ENV')
+# IS_LOCAL = os.path.exists(BASE_DIR / 'db.sqlite3') and not os.environ.get('VERCEL_ENV')
 
-if IS_LOCAL:
-    # SQLite for local development
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
-else:
+# if IS_LOCAL:
+#     # SQLite for local development
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.sqlite3',
+#             'NAME': BASE_DIR / 'db.sqlite3',
+#         }
+#     }
+# else:
     # PostgreSQL for production (Vercel)
-    DATABASES = {
-        'default': dj_database_url.config(
-            default='postgresql://neondb_owner:npg_gsxn42RleAyI@ep-flat-bird-adoqlxg8-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require',
-            conn_max_age=600,
-            conn_health_checks=True,
-        )
-    }
+DATABASES = {
+    'default': dj_database_url.config(
+        default='postgresql://neondb_owner:npg_gsxn42RleAyI@ep-flat-bird-adoqlxg8-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require',
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
+}
 
 
 # Password validation
