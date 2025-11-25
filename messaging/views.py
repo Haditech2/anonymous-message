@@ -271,23 +271,46 @@ def generate_message_image(request, username, message_id):
     draw.ellipse([width-300, -150, width+150, 300], fill=accent_color)
     draw.ellipse([-150, height-300, 300, height+150], fill=accent_color)
     
-    # Try to use a font, fallback to default if not available
+    # Try to use fonts, with multiple fallbacks
     try:
+        # Try Windows fonts
         title_font = ImageFont.truetype("arial.ttf", 48)
         message_font = ImageFont.truetype("arial.ttf", 36)
         footer_font = ImageFont.truetype("arial.ttf", 28)
         small_font = ImageFont.truetype("arial.ttf", 24)
     except:
-        title_font = ImageFont.load_default()
-        message_font = ImageFont.load_default()
-        footer_font = ImageFont.load_default()
-        small_font = ImageFont.load_default()
+        try:
+            # Try alternative Windows fonts
+            title_font = ImageFont.truetype("C:\\Windows\\Fonts\\arial.ttf", 48)
+            message_font = ImageFont.truetype("C:\\Windows\\Fonts\\arial.ttf", 36)
+            footer_font = ImageFont.truetype("C:\\Windows\\Fonts\\arial.ttf", 28)
+            small_font = ImageFont.truetype("C:\\Windows\\Fonts\\arial.ttf", 24)
+        except:
+            try:
+                # Try Linux fonts
+                title_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 48)
+                message_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 36)
+                footer_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 28)
+                small_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
+            except:
+                # Use default font as last resort
+                title_font = ImageFont.load_default()
+                message_font = ImageFont.load_default()
+                footer_font = ImageFont.load_default()
+                small_font = ImageFont.load_default()
     
     # Add title
     title_text = "📨 Anonymous Message"
-    title_bbox = draw.textbbox((0, 0), title_text, font=title_font)
-    title_width = title_bbox[2] - title_bbox[0]
-    draw.text(((width - title_width) // 2, 100), title_text, fill=text_color, font=title_font)
+    try:
+        title_bbox = draw.textbbox((0, 0), title_text, font=title_font)
+        title_width = title_bbox[2] - title_bbox[0]
+        draw.text(((width - title_width) // 2, 100), title_text, fill=text_color, font=title_font)
+    except:
+        # Fallback without emoji
+        title_text = "Anonymous Message"
+        title_bbox = draw.textbbox((0, 0), title_text, font=title_font)
+        title_width = title_bbox[2] - title_bbox[0]
+        draw.text(((width - title_width) // 2, 100), title_text, fill=text_color, font=title_font)
     
     # Add decorative line
     draw.rectangle([width//2 - 100, 180, width//2 + 100, 185], fill=text_color)
