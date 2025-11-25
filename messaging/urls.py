@@ -16,4 +16,5 @@ urlpatterns = [
     path('dashboard/<str:username>/logout/', views.logout_dashboard, name='logout_dashboard'),
     path('dashboard/<str:username>/delete/<int:message_id>/', views.delete_message, name='delete_message'),
     path('dashboard/<str:username>/delete-all/', views.delete_all_messages, name='delete_all_messages'),
+    path('dashboard/<str:username>/message-image/<int:message_id>/', views.generate_message_image, name='generate_message_image'),
 ]

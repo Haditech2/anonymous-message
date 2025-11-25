@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
@@ -9,6 +9,9 @@ from datetime import timedelta
 from django_ratelimit.decorators import ratelimit
 from .models import UserProfile, Message, BlockedIP
 from .forms import CreateProfileForm, SendMessageForm, PinAuthForm
+from PIL import Image, ImageDraw, ImageFont
+import io
+import textwrap
 
 
 def get_client_ip(request):
@@ -242,3 +245,88 @@ def logout_dashboard(request, username):
     
     messages.success(request, 'You have been logged out.')
     return redirect('index')
+
+
+def generate_message_image(request, username, message_id):
+    """Generate an image for a message to share on social media"""
+    user_profile = get_object_or_404(UserProfile, username=username)
+    
+    # Check authentication
+    if not request.session.get(f'auth_{username}'):
+        return HttpResponse('Unauthorized', status=403)
+    
+    message = get_object_or_404(Message, id=message_id, user=user_profile)
+    
+    # Create image
+    width, height = 1080, 1080
+    bg_color = (88, 101, 242)  # Discord-like blue
+    text_color = (255, 255, 255)
+    accent_color = (255, 255, 255, 50)
+    
+    # Create image with gradient-like background
+    img = Image.new('RGB', (width, height), bg_color)
+    draw = ImageDraw.Draw(img, 'RGBA')
+    
+    # Add decorative elements
+    draw.ellipse([width-300, -150, width+150, 300], fill=accent_color)
+    draw.ellipse([-150, height-300, 300, height+150], fill=accent_color)
+    
+    # Try to use a font, fallback to default if not available
+    try:
+        title_font = ImageFont.truetype("arial.ttf", 48)
+        message_font = ImageFont.truetype("arial.ttf", 36)
+        footer_font = ImageFont.truetype("arial.ttf", 28)
+        small_font = ImageFont.truetype("arial.ttf", 24)
+    except:
+        title_font = ImageFont.load_default()
+        message_font = ImageFont.load_default()
+        footer_font = ImageFont.load_default()
+        small_font = ImageFont.load_default()
+    
+    # Add title
+    title_text = "📨 Anonymous Message"
+    title_bbox = draw.textbbox((0, 0), title_text, font=title_font)
+    title_width = title_bbox[2] - title_bbox[0]
+    draw.text(((width - title_width) // 2, 100), title_text, fill=text_color, font=title_font)
+    
+    # Add decorative line
+    draw.rectangle([width//2 - 100, 180, width//2 + 100, 185], fill=text_color)
+    
+    # Wrap and add message text
+    max_chars = 35
+    wrapped_lines = textwrap.wrap(message.message_text, width=max_chars)
+    
+    # Limit to 12 lines
+    if len(wrapped_lines) > 12:
+        wrapped_lines = wrapped_lines[:12]
+        wrapped_lines[-1] = wrapped_lines[-1][:max_chars-3] + "..."
+    
+    y_offset = 280
+    line_height = 50
+    
+    for line in wrapped_lines:
+        line_bbox = draw.textbbox((0, 0), line, font=message_font)
+        line_width = line_bbox[2] - line_bbox[0]
+        draw.text(((width - line_width) // 2, y_offset), line, fill=text_color, font=message_font)
+        y_offset += line_height
+    
+    # Add footer
+    footer_text = f"Sent to @{username}"
+    footer_bbox = draw.textbbox((0, 0), footer_text, font=footer_font)
+    footer_width = footer_bbox[2] - footer_bbox[0]
+    draw.text(((width - footer_width) // 2, height - 200), footer_text, fill=text_color, font=footer_font)
+    
+    # Add website/call to action
+    cta_text = "Send me anonymous messages!"
+    cta_bbox = draw.textbbox((0, 0), cta_text, font=small_font)
+    cta_width = cta_bbox[2] - cta_bbox[0]
+    draw.text(((width - cta_width) // 2, height - 100), cta_text, fill=(255, 255, 255, 200), font=small_font)
+    
+    # Save to bytes
+    img_io = io.BytesIO()
+    img.save(img_io, 'PNG', quality=95)
+    img_io.seek(0)
+    
+    response = HttpResponse(img_io, content_type='image/png')
+    response['Content-Disposition'] = f'inline; filename="message_{message_id}.png"'
+    return response
