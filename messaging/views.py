@@ -297,27 +297,27 @@ def generate_message_image(request, username, message_id):
     draw.ellipse([width-300, -150, width+150, 300], fill=accent_color)
     draw.ellipse([-150, height-300, 300, height+150], fill=accent_color)
     
-    # Try to use fonts, with multiple fallbacks - using larger, more readable sizes
+    # Try to use fonts, with multiple fallbacks - using very large, highly readable sizes
     try:
-        # Try Windows fonts with larger sizes
-        title_font = ImageFont.truetype("arial.ttf", 70)
-        message_font = ImageFont.truetype("arialbd.ttf", 52)  # Bold for better readability
-        footer_font = ImageFont.truetype("arial.ttf", 38)
-        small_font = ImageFont.truetype("arial.ttf", 32)
+        # Try Windows fonts with very large sizes
+        title_font = ImageFont.truetype("arial.ttf", 90)
+        message_font = ImageFont.truetype("arialbd.ttf", 72)  # Bold for better readability
+        footer_font = ImageFont.truetype("arial.ttf", 50)
+        small_font = ImageFont.truetype("arial.ttf", 40)
     except:
         try:
-            # Try alternative Windows fonts with larger sizes
-            title_font = ImageFont.truetype("C:\\Windows\\Fonts\\arial.ttf", 70)
-            message_font = ImageFont.truetype("C:\\Windows\\Fonts\\arialbd.ttf", 52)
-            footer_font = ImageFont.truetype("C:\\Windows\\Fonts\\arial.ttf", 38)
-            small_font = ImageFont.truetype("C:\\Windows\\Fonts\\arial.ttf", 32)
+            # Try alternative Windows fonts with very large sizes
+            title_font = ImageFont.truetype("C:\\Windows\\Fonts\\arial.ttf", 90)
+            message_font = ImageFont.truetype("C:\\Windows\\Fonts\\arialbd.ttf", 72)
+            footer_font = ImageFont.truetype("C:\\Windows\\Fonts\\arial.ttf", 50)
+            small_font = ImageFont.truetype("C:\\Windows\\Fonts\\arial.ttf", 40)
         except:
             try:
-                # Try Linux fonts with larger sizes
-                title_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 70)
-                message_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 52)
-                footer_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 38)
-                small_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 32)
+                # Try Linux fonts with very large sizes
+                title_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 90)
+                message_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 72)
+                footer_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 50)
+                small_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 40)
             except:
                 # Use default font as last resort
                 title_font = ImageFont.load_default()
@@ -339,19 +339,19 @@ def generate_message_image(request, username, message_id):
         draw.text(((width - title_width) // 2, 100), title_text, fill=text_color, font=title_font)
     
     # Add decorative line
-    draw.rectangle([width//2 - 150, 200, width//2 + 150, 208], fill=text_color)
+    draw.rectangle([width//2 - 180, 230, width//2 + 180, 242], fill=text_color)
     
-    # Wrap and add message text - adjusted for larger font
-    max_chars = 28  # Reduced to accommodate larger font
+    # Wrap and add message text - adjusted for much larger font
+    max_chars = 22  # Further reduced to accommodate much larger font
     wrapped_lines = textwrap.wrap(message.message_text, width=max_chars)
     
-    # Limit to 10 lines for larger font
-    if len(wrapped_lines) > 10:
-        wrapped_lines = wrapped_lines[:10]
+    # Limit to 8 lines for very large font
+    if len(wrapped_lines) > 8:
+        wrapped_lines = wrapped_lines[:8]
         wrapped_lines[-1] = wrapped_lines[-1][:max_chars-3] + "..."
     
-    y_offset = 320
-    line_height = 65  # Increased spacing for better readability
+    y_offset = 350
+    line_height = 85  # Much larger spacing for very large text
     
     for line in wrapped_lines:
         line_bbox = draw.textbbox((0, 0), line, font=message_font)
