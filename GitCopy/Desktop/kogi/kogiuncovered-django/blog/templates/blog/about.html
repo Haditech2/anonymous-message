@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}About Us - Kogiuncovered TV{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-5xl font-bold mb-6">About Kogiuncovered TV</h1>
+        
+        <div class="prose prose-lg max-w-none">
+            <p class="text-xl text-gray-600 mb-8">
+                Kogiuncovered TV is your premier source for news, stories, and insights from Kogi State and beyond.
+            </p>
+            
+            <h2 class="text-3xl font-bold mt-12 mb-4">Our Mission</h2>
+            <p>
+                We are committed to delivering accurate, timely, and engaging content that informs and empowers our community. 
+                Our mission is to uncover the stories that matter and bring them to light.
+            </p>
+            
+            <h2 class="text-3xl font-bold mt-12 mb-4">What We Cover</h2>
+            <ul class="list-disc pl-6 space-y-2">
+                <li>Politics and Governance</li>
+                <li>Business and Economy</li>
+                <li>Culture and Heritage</li>
+                <li>Community Stories</li>
+                <li>Public Affairs</li>
+            </ul>
+            
+            <h2 class="text-3xl font-bold mt-12 mb-4">Contact Us</h2>
+            <p>
+                Have a story tip or want to get in touch? Visit our <a href="{% url 'contact' %}" class="text-blue-600 hover:underline">contact page</a>.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}All Articles - Kogiuncovered TV{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <!-- Header -->
+    <div class="mb-8 rounded-2xl border border-gray-200 bg-white p-6 md:p-8">
+        <p class="mb-2 text-sm font-semibold uppercase tracking-wider text-blue-600">Archive</p>
+        <h1 class="mb-3 text-4xl font-bold tracking-tight">All Articles</h1>
+        <p class="text-base text-gray-600 md:text-lg">
+            Browse our complete coverage of politics, business, communities, culture, and public affairs across Kogi State.
+        </p>
+    </div>
+
+    <!-- Articles Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for post in page_obj %}
+        <article class="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-lg">
+            <a href="{% url 'article_detail' post.slug %}" class="block">
+                <!-- Image -->
+                <div class="relative aspect-video overflow-hidden bg-gray-200">
+                    {% if post.featured_image %}
+                    <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" 
+                         class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105">
+                    {% else %}
+                    <div class="h-full w-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-purple-100">
+                        <span class="text-gray-400 text-4xl">📰</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Tags Overlay -->
+                    <div class="absolute bottom-0 left-0 right-0 p-4">
+                        <div class="flex flex-wrap gap-2">
+                            {% for tag in post.get_tags_list|slice:":3" %}
+                            <span class="rounded-full border border-white/40 bg-black/60 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
+                                {{ tag }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div class="p-6">
+                    <div class="mb-3 flex flex-wrap items-center gap-y-1 text-sm text-gray-500">
+                        <span class="flex items-center mr-4">
+                            <svg class="w-4 h-4 mr-1 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            {{ post.created_at|date:"M d, Y" }}
+                        </span>
+                        <span class="flex items-center">
+                            <svg class="w-4 h-4 mr-1 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            {{ post.reading_time }}
+                        </span>
+                    </div>
+
+                    <h3 class="mb-3 text-xl font-semibold leading-snug transition-colors group-hover:text-blue-600">
+                        {{ post.title }}
+                    </h3>
+
+                    <p class="mb-5 line-clamp-2 text-gray-600">{{ post.excerpt }}</p>
+
+                    <p class="mb-4 text-sm font-medium text-gray-700">
+                        By {{ post.author.get_full_name|default:post.author.username }}
+                    </p>
+
+                    <div class="flex items-center text-sm font-semibold text-blue-600 transition-transform duration-200 group-hover:translate-x-1">
+                        Read more
+                        <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+        </article>
+        {% empty %}
+        <div class="col-span-3 text-center py-12">
+            <h3 class="text-xl font-medium">No articles yet</h3>
+            <p class="text-gray-500 mt-2">Check back soon for new content!</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="mt-12 flex justify-center">
+        <nav class="flex items-center space-x-2">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" 
+               class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                Previous
+            </a>
+            {% endif %}
+
+            <span class="px-4 py-2 text-gray-700">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" 
+               class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                Next
+            </a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
